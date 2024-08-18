@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe List with Modal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            border-bottom: 1px solid #e2e2e2;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-logo {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-menu {
+            display: flex;
+        }
+
+        .header-menu a {
+            text-decoration: none;
+            color: #333;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .header-search-cart {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-search-cart input[type="text"] {
+            padding: 7px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .header-search-cart button {
+            margin-left: 10px;
+            padding: 7px 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+
+        .header-search-cart .cart {
+            margin-left: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* Recipe List */
+        .recipe-list {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            justify-content: space-around;
+        }
+
+        .recipe-item {
+            background-color: white;
+            border: 1px solid #e2e2e2;
+            border-radius: 5px;
+            margin: 15px;
+            width: 300px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .recipe-item:hover {
+            transform: scale(1.03);
+        }
+
+        .recipe-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .recipe-content {
+            padding: 15px;
+        }
+
+        .recipe-content h3 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .recipe-content p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+
+        .recipe-content a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .recipe-content a:hover {
+            color: #0073e6;
+        }
+
+        /* Modal (Z-Index Detail Box) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content p {
+            color: #666;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-logo">RecipeHubApp</div>
+        <div class="header-search-cart">
+            <input type="text" placeholder="Search for anything">
+            <button>Search</button>
+            <a href="order.html">
+                <div class="cart">🛒</div>
+            </a>
+        </div>
+        <div class="header-menu">
+            <a href="home.html">Home</a>
+            <a href="recipe.html">Recipes</a>
+            <a href="article.html">Stories</a>
+            <a href="collection.html">Collection</a>
+            <a href="product.html">Shop</a>
+        </div>
+    </header>
+
+    <!-- Recipe List -->
+    <div class="recipe-list">
+        <div class="recipe-item">
+            <img src="recipe1.jpg" alt="Recipe 1">
+            <div class="recipe-content">
+                <h3>Smoky Southwest Chicken Thighs</h3>
+                <p>With charred corn & poblano peppers.</p>
+                <a onclick="openModal('modal1')">View Recipe</a>
+            </div>
+        </div>
+
+        <div class="recipe-item">
+            <img src="recipe2.jpg" alt="Recipe 2">
+            <div class="recipe-content">
+                <h3>Upside Down Plum & Cardamom Cake</h3>
+                <p>A delightful dessert for any occasion.</p>
+                <a onclick="openModal('modal2')">View Recipe</a>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <!-- Modal 1 -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('modal1')">Close</button>
+            <h2>Smoky Southwest Chicken Thighs</h2>
+            <p>Details about the recipe...</p>
+        </div>
+    </div>
+
+    
+    <script>
+        const access = localStorage.getItem("access")
+        if (!access){
+            messageBox.textContent = "Login Required"
+            window.location.href = "login.html"
+            
+        }
+        const recipe_container = document.getElementsByClassName("recipe-list")
+        
+        function displayrecipe(data){
+            data.forEach((el)=>{
+                const recipediv = document.createElement('div');
+                recipediv.className = 'recipe-item'
+
+                const pic = document.createElement('img')
+                pic.src = "model.jpg"
+                pic.alt = "recipepic"
+
+            
+                const textdiv = document.createElement('div')
+                textdiv.className = 'recipe-content'
+
+                const title = document.createElement("h2");
+
+                const assignee = document.createElement('p')
+                assignee.textContent = `by: "${el.assignee}"`
+
+                const viewrecipe = document.createElement('a')
+                viewrecipe.className = "view-detail"
+                viewrecipe.textContent = "View Details"
+                viewrecipe.addEventListener("click", () => {
+                    openEditModal(el)
+                })
+
+                const Savedbtn = document.createElement("button")
+                Savedbtn.setAttribute("type", 'button')
+                Savedbtn.className = "save_btn"
+                Savedbtn.textContent = "Saved"
+                Savedbtn.addEventListener("click", ()=>{
+                    colletionsave(el.id)
+
+                })
+                textdiv.append( title, assignee, Savedbtn, viewrecipe)
+                recipediv.append(pic, textdiv)
+                recipe_container.append(recipediv)
+            })
+        }
+
+        const fetchRecipe = async () => {
+            try{
+                const res = await fetch("http://127.0.0.1:8000/api/recipelist/", {
+                    method:"GET",
+                    headers: {
+                        "Content-Type": 'application/json',
+                        Authorization : `Bearer ${{access}}`
+                    },
+                })
+                const data = await res.json()
+                if (!res.ok){
+                    alert(data.detail)
+                    return
+                }
+                console.log(data.results)
+                displayrecipe(data.results)
+            }catch(err){
+                console.log("Error in fetchrecipe:" ,err)
+            }
+        }
+        const title = document.getElementById("title-inp")
+        const ingredient = document.getElementById("ing-inp")
+        const instruction = document.getElementById("instru-inp")
+        const view = document.getElementById('view-inp')
+        const prep = document.getElementById("prep-inp")
+        const cook = document.getElementById("cook-inp")
+        const serving = document.getElementById("serv-inp")
+        const cato = document.getElementById("cato-inp")
+        const cuisine = document.getElementById("cui-inp")
+        const image = document.getElementById("img")
+        const author = document.getElementById("author-inp")
+        const create = document.getElementById("create-inp")
+        const addbtn = document.getElementById("add-btn")
+        const addrecipe = async (e) => {
+            e.preventDefault()
+            const title = title.value
+            const person = author.value
+            if (!title || !person){
+                alert("alleast fill title and author")
+                return 
+            }
+            try{
+                const res = await fetch("http://127.0.0.1:8000/api/recipelist/create" ,{
+                    method: "POST",
+                    headers: {
+                        "Content-Type": 'application/json',
+                        Authorization : `Bearer ${access}`
+                    },
+                    body : JSON.stringify({
+                        title, person, ingredient, instruction,
+                        view, prep, cook, serving,cato, cuisine,
+                        image,create, 
+                    }),
+                })
+                if (!res.ok){
+                    throw new Error(`Erro adding recipe: ${res.statusText}`)
+                };
+                fetchRecipe();
+            }catch (err) {
+                console.log("Error in add recipe:", err)
+            }
+        }
+        addbtn.addEventListener('click', addrecipe)
+        const editModal = document.getElementById("editModal")
+        const closeModal = document.getElementById(".close")
+
+        const openEditModal = (recipe) => {
+            document.getElementById('title-inp').value = recipe.title
+            document.getElementById("author-inp").value = recipe.assignee
+            document.getElementById('img').value = recipe.pic
+            document.getElementById('ing-inp').value = recipe.ingredient
+            document.getElementById('instru-inp').value = recipe.instruction
+            document.getElementById('cook-inp').value = recipe.cook
+            document.getElementById('prep-inp').value = recipe.prep
+            document.getElementById('serv-inp').value = recipe.serving
+            document.getElementById('author-inp').value = recipe.author
+            document.getElementById('cato-inp').value = recipe.cato
+            document.getElementById('view-inp').value = recipe.view
+            document.getElementById('create-inp').value = recipe.create
+            document.getElementById("cui-inp").value = recipe.cuisine
+            editModal.style.display = "block"
+
+
+        }
+
+    </script>
+
+</body>
+</html>

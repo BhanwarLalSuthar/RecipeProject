@@ -1,16 +1,21 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import jwt,datetime,django_filters
+from django.utils import timezone
+from django.views import View
+
+
+from django.contrib.auth import logout as auth_logout
 
 from django.contrib.auth.models import User 
 from django.contrib.auth import authenticate,login,logout
 
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics, filters
+from rest_framework import status, generics, filters, permissions
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
 from rest_framework_simplejwt.tokens import RefreshToken,AccessToken
@@ -18,49 +23,56 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string, get_template
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
+from . permissions import *
 from .models import UserProfile,Recipe,Review,Collection,Article,Order,Product ,PaymentMode
-from .serializers import RecipeSerializer, ReviewSerializer,OrderSerializer,ArticleSerializer,ProductSerializer,UserProfileSerializer,UserSerializer,CollectionSerializer ,PaymentModeSerializer
+from .serializers import *
 # Create your views here.
+class HomeView(View):
+    def get(self, request):
+        return render(request, 'home.html')
+    
 class RegisterView(APIView):
-    def post(self, request):
-        serializer = UserSerializer(data = request.data)
+    def post(self,request):
+        serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            profile = UserProfile(user=user,user_type = request.data['user_type'])
+            profile = UserProfile(user=user,user_type = request.data.get('user_type'))
             profile.save()
-            return Response({'message':'User register successfully', 'user_details':serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail':'SignUp Succesfull'},status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class LogoutView(APIView):
+    def post(self, request):
+        auth_logout(request)
+        response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+        response.delete_cookie('jwt')
+        return response
     
 class LoginView(APIView):
-    def post(self, request):
+    def post(self,request):
         username = request.data.get('username')
         password = request.data.get('password')
-        
-        user = User.objects.filter(username=username).first()
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "Username does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(username=username, password=password)
         if user is None:
-            return Response({'message':'User not Regitsered, Please Signup'}, status=status.HTTP_404_NOT_FOUND)
-        if not user.check_password(password):
-            return Response({'message':'wrong password, Please try again'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        login(request, user)
-        payload = {
-            'id':user.id,
-            'exp': datetime.datetime.now(datetime.UTC)+datetime.timedelta(minutes=60),
-            'iat':datetime.datetime.now(datetime.UTC)
-        }
-        token = jwt.encode(payload, 'bhawar', algorithm='HS256')
+            return Response({"error": "Incorrect password"}, status=status.HTTP_400_BAD_REQUEST)
+
+        refresh = RefreshToken.for_user(user)
         response = Response()
-        response.data = {'message':'login successfull','token': token}
+        response.data = {
+            'refreshToken' : str(refresh),
+            'accessToken' : str(refresh.access_token),
+            'detail':'Login Successfull'
+        }
         response.status = status.HTTP_200_OK
-        response.set_cookie(
-            key='jwt',
-            value=token,
-            httponly=False,
-            samesite=None,
-            secure=None
-        )
+        response.set_cookie('access',str(refresh.access_token))
+        response.set_cookie('refresh',str(refresh))
         return response
     
 class PasswordResetRequestView(APIView):
@@ -142,9 +154,18 @@ class RecipeList(generics.ListCreateAPIView):
     ordering_fields = ['title', 'created_at']
     
 class RecipeDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Recipe.objects.all()
+    # queryset = Recipe.objects.all()
     serializer_class= RecipeSerializer
-    
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        token = self.request.COOKIES.get('jwt')
+        payload = jwt.decode(token, 'bhawar', algorithms=['HS256'])
+        profile = UserProfile.objects.filter(user_id = payload['id']).first()
+        recipe = Recipe.objects.get(id=pk)
+        if profile.id != recipe.author.user:
+            raise PermissionDenied(detail='You Do Not have Permission to Update This recipe')
+        return recipe
+        
 class ReviewList(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
@@ -154,8 +175,20 @@ class ReviewList(generics.ListCreateAPIView):
     ordering_fields = ['rating', 'date']
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Review.objects.all()
+    # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        token = self.request.COOKIES.get('jwt')
+        payload = jwt.decode(token, 'bhawar', algorithms=['HS256'])
+        profile = UserProfile.objects.filter(user_id=payload['id']).first()
+        print(self.request.author)
+        # user_d = self.request.author
+        # print(user_d)
+        review = Review.objects.get(id=pk)
+        if profile.id != review.user:
+            raise  PermissionDenied(detail='you do not have permission to update this review' )
+        return review
     
 class CollectionList(generics.ListCreateAPIView):
     queryset = Collection.objects.all()
@@ -170,16 +203,31 @@ class CollectionDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CollectionSerializer
     
 class ArticleList(generics.ListCreateAPIView):
+    # permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     queryset = Article.objects.all()
+    # def post(self, request):
+    #     pk = self.kwargs.get('pk')
+    #     token = self.request.COOKIES.get('jwt')
+    #     payload = jwt.decode(token, 'bhawar', algorithms=['HS256'])
+    #     profile = UserProfile.objects.filter(user_id=payload['id']).first()
+    #     article = Article.objects.all()
+    #     if profile.user_type != "author":
+    #         raise PermissionDenied(detail= "Customer do not have permission to create article")
+    #     return article
+            
     serializer_class = ArticleSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter]
     filterset_fields = ['author__user__username']
     search_fields = ['title', 'content', 'author__user__username']
     ordering_fields = ['title', 'date_published']
+
     
 class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthor]
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+    
+    
     
 class ProductList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -193,6 +241,7 @@ class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     
+    
 class OrderList(generics.ListCreateAPIView):
     queryset= Order.objects.all()
     serializer_class = OrderSerializer
@@ -204,6 +253,16 @@ class OrderList(generics.ListCreateAPIView):
 class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+
+    def get_object(self):
+        order = super().get_object()
+        date_now = timezone.now()  # Use timezone-aware datetime
+        if order.waiting_time and date_now > order.waiting_time:
+            order.status = 'Expired'
+            order.save(update_fields=['status'])
+        return order
+
+    
     
 class PaymentModeList(generics.ListCreateAPIView):
     queryset = PaymentMode.objects.all()

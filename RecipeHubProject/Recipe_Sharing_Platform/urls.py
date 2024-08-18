@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from .views import *
 from rest_framework.permissions import AllowAny
 from drf_yasg.views import get_schema_view as get_swagger_view
@@ -35,7 +35,10 @@ urlpatterns = [
     path('resetpassword/', PasswordResetRequestView.as_view(), name='resetpassword'),
     # URL pattern for password reset confirmation
     path('password_reset_confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    
+ 
+    path('logout/', LogoutView.as_view(), name='logout'),
+
+
     # URL pattern for listing and creating recipes
     path('recipelist/', RecipeList.as_view(), name='recipe_list'),
     # URL pattern for retrieving, updating, and deleting a specific recipe
@@ -69,7 +72,7 @@ urlpatterns = [
     # URL pattern for listing and creating payment modes
     path('paymentmodelist/', PaymentModeList.as_view(), name='paymentmode_list'),
     # URL pattern for retrieving, updating, and deleting a specific payment mode
-    path('paymentmodedetail/<int:pk>/', PaymentModeDetail.as_view(), name='paymentmode_detail'),
+    path('paymentmodelist/<int:pk>/', PaymentModeDetail.as_view(), name='paymentmode_detail'),
 
     # URL pattern for Swagger UI documentation
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger'),

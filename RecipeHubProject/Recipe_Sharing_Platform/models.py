@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta,datetime
 from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
@@ -12,7 +12,7 @@ class UserProfile(models.Model):
         ('author','Author'),
         ('customer','Customer')
     )
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     user_type = models.CharField(max_length=100, choices=USER_ROLES)
     profile_pic = models.ImageField(upload_to=None, blank=True, null = True)
     bio = models.TextField(blank=True, null= True)
@@ -75,6 +75,12 @@ class Product(models.Model):
     image = models.URLField(blank=True)
     stock = models.IntegerField()
     
+    def save(self, *args,**kwargs):
+        if self.stock == 0:
+            self.delete()
+        else:
+            super(Product, self).save(*args,**kwargs)
+    
     def __str__(self):
         return self.name
 
@@ -83,21 +89,31 @@ class Order(models.Model):
     products = models.ManyToManyField(Product, related_name='orders')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=250)
-    date_ordered = models.DateTimeField(auto_now_add=False)
+    date_ordered = models.DateTimeField(auto_now_add=True)
     waiting_time = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if self.date_ordered and not self.waiting_time:
-            self.waiting_time = self.date_ordered + timedelta(minutes=30)
+        self.date_ordered = datetime.now()
+        self.waiting_time = self.date_ordered + timedelta(minutes=30)
         super(Order, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'Order {self.id} by {self.user.user.username}'
 
 class PaymentMode(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+
+    payment_type = models.CharField(max_length = 50,choices=[("cod", "COD"),("razorpay","RazorPay")])
+    order = models.ForeignKey(Order, related_name= "payment_mode", on_delete=models.CASCADE, default=1)
     is_active = models.BooleanField(default=True)
     
+    def save(self, *args, **kwargs):
+        super(PaymentMode, self).save(*args, **kwargs)
+        if self.payment_type == "cod":
+            self.order.status = 'payment_done'
+        elif self.payment_type == "razorpay":
+            # Additional logic for RazorPay can be added here
+            self.order.status = 'payment_done'
+        self.order.save()
+    
     def __str__(self):
-        return self.name
+        return self.payment_type

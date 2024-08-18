@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food52 Inspired UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            border-bottom: 1px solid #e2e2e2;
+            padding: 10px 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-logo {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-search-cart {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-search-cart input[type="text"] {
+            padding: 7px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .header-search-cart button.search-btn {
+            margin-left: 10px;
+            padding: 7px 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+
+        .header-search-cart .cart {
+            margin-left: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* Add Sign Up and Login Buttons */
+        .header-search-cart .auth-buttons {
+            margin-left: 20px;
+            display: flex;
+        }
+
+        .header-search-cart .auth-buttons a {
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        .header-search-cart .auth-buttons button {
+            padding: 7px 10px;
+            background-color: #f8f8f8;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .header-search-cart .auth-buttons button:hover {
+            background-color: #e2e2e2;
+        }
+
+        /* Header Menu */
+        .header-menu {
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e2e2;
+        }
+
+        .header-menu a {
+            text-decoration: none;
+            color: #333;
+            margin: 0 20px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        main {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .main-content {
+            width: 70%;
+            padding: 0 20px;
+        }
+
+        .side-content {
+            width: 25%;
+            padding: 0 20px;
+        }
+
+        .main-content img {
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .side-content img {
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            border-top: 1px solid #e2e2e2;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer p {
+            color: #777;
+            font-size: 14px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="header-logo">RecipeHubApp</div>
+            <div class="header-search-cart">
+                <input type="text" placeholder="Search for anything">
+                <button class="search-btn">Search</button>
+                <a href="order.html">
+                    <div class="cart">🛒</div>
+                </a>
+                <div class="auth-buttons">
+                    <!-- Wrap button in anchor tag to make it clickable -->
+                    <a href="register.html"><button class="signup-btn">Sign Up</button></a>
+                    <a href="login.html"><button class="login-btn">Login</button></a>
+                </div>
+            </div>
+        </div>
+        <div class="header-menu">
+            <a href="home.html">Home</a>
+            <a href="recipe.html">Recipes</a>
+            <a href="article.html">Stories</a>
+            <a href="collection.html">Collection</a>
+            <a href="product.html">Shop</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="main-content">
+            <img src="your-main-image-url.jpg" alt="Main Image">
+        </div>
+        <div class="side-content">
+            <img src="your-side-image-1-url.jpg" alt="Side Image 1">
+            <img src="your-side-image-2-url.jpg" alt="Side Image 2">
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 RecipeHubApp. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

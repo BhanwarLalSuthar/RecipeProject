@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles & Stories</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            border-bottom: 1px solid #e2e2e2;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-logo {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-menu {
+            display: flex;
+        }
+
+        .header-menu a {
+            text-decoration: none;
+            color: #333;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .header-search-cart {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-search-cart input[type="text"] {
+            padding: 7px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .header-search-cart button {
+            margin-left: 10px;
+            padding: 7px 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+
+        .header-search-cart .cart {
+            margin-left: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* Articles/Stories Section */
+        .articles-container {
+            padding: 20px;
+        }
+
+        .articles-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .articles-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .article-item {
+            background-color: white;
+            border: 1px solid #e2e2e2;
+            border-radius: 5px;
+            margin: 15px;
+            width: 300px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .article-item:hover {
+            transform: scale(1.03);
+        }
+
+        .article-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 15px;
+        }
+
+        .article-content h3 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .article-content p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+
+        .article-content a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .article-content a:hover {
+            color: #0073e6;
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            border-top: 1px solid #e2e2e2;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer p {
+            color: #777;
+            font-size: 14px;
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-logo">RecipeHubApp</div>
+        <div class="header-search-cart">
+            <input type="text" placeholder="Search for anything">
+            <button>Search</button>
+            <a href="order.html">
+                <div class="cart">🛒</div>
+            </a>
+        </div>
+        <div class="header-menu">
+            <a href="home.html">Home</a>
+            <a href="recipe.html">Recipes</a>
+            <a href="article.html">Stories</a>
+            <a href="collection.html">Collection</a>
+            <a href="product.html">Shop</a>
+        </div>
+    </header>
+
+    <!-- Articles/Stories Section -->
+    <div class="articles-container">
+        <h1 class="articles-title">Latest Articles & Stories</h1>
+        <div class="articles-list">
+            <div class="article-item">
+                <img src="article1.jpg" alt="Article 1">
+                <div class="article-content">
+                    <h3>10 Delicious Recipes for Summer</h3>
+                    <p>Discover the best recipes to enjoy during the summer season.</p>
+                    <a href="article-details.html">Read More</a>
+                </div>
+            </div>
+
+            <div class="article-item">
+                <img src="article2.jpg" alt="Article 2">
+                <div class="article-content">
+                    <h3>The Art of Plating: Tips & Tricks</h3>
+                    <p>Learn how to make your dishes look as good as they taste.</p>
+                    <a href="article-details.html">Read More</a>
+                </div>
+            </div>
+
+            <div class="article-item">
+                <img src="article3.jpg" alt="Article 3">
+                <div class="article-content">
+                    <h3>Healthy Eating: A Beginner's Guide</h3>
+                    <p>Start your journey to a healthier lifestyle with these tips.</p>
+                    <a href="article-details.html">Read More</a>
+                </div>
+            </div>
+
+            <div class="article-item">
+                <img src="article4.jpg" alt="Article 4">
+                <div class="article-content">
+                    <h3>Top 5 Kitchen Gadgets You Need</h3>
+                    <p>Upgrade your kitchen with these must-have gadgets.</p>
+                    <a href="article-details.html">Read More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 RecipeHubApp. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

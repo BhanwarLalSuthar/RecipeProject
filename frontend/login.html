@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #CCBAB5, #41291A);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #form-container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        #message-box {
+            display: none;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #FFFFFF;
+            background-color: #FF4D4D;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+            color: #333;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        input:focus {
+            border-color: #FF7E5F;
+            outline: none;
+        }
+        button {
+            background: #211512;
+            color: #fff;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background: #FEB47B;
+            color: black;
+            transform: translateY(-2px);
+        }
+        p {
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+        a {
+            color: #FF7E5F;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="form-container">
+        <div id="message-box"></div>
+        <form id="loginForm" action="">
+            <h2>Login Here</h2>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password">
+            </div>
+            <button type="submit">Login</button>
+            <p>Don't have an account? <a href="register.html">Sign Up</a></p>
+        </form>
+    </div>
+</body>
+<script>
+    const loginForm = document.getElementById("loginForm");
+    const messageBox = document.getElementById("message-box");
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        if (!username || !password){
+            alert("Both Fields Required");
+            return
+        }
+        const res = await fetch("http://127.0.0.1:8000/api/login/",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                username,password
+            })
+        })
+        const data = await res.json();
+        // console.log(data)
+        messageBox.style.display = "block";
+        if (data.error){
+            messageBox.textContent = data.error
+        }
+        else{
+            localStorage.setItem('access',data.accessToken)
+            messageBox.textContent = data.detail
+            window.location.href = "home.html"
+        }
+    })
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
